@@ -1,3 +1,4 @@
+import 'package:dialpad/services/call_services.dart';
 import 'package:flutter/material.dart';
 import 'package:call_e_log/call_log.dart'; // Add this to fetch call logs
 import 'package:permission_handler/permission_handler.dart'; // Add for permissions
@@ -61,13 +62,8 @@ class _IncomingCallsScreenState extends State<IncomingCallsScreen> {
                   ),
                   onTap: () {
                     // Navigate to the DialingScreen and pass the incoming number
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DialingScreen(
-                            dialedNumber: log.number ?? 'Unknown'),
-                      ),
-                    );
+                    CallServices()
+                        .onCallPressed(log.number.toString(), context);
                   },
                 );
               },

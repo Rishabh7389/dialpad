@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:dialpad/services/call_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -65,6 +68,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
                               Contact contact = _filteredContacts[index];
                               final List<Phone> phones = contact.phones;
                               return ListTile(
+                                onTap: () {
+                                  CallServices()
+                                      .onCallPressed(phones[0].number, context);
+                                },
                                 leading: CircleAvatar(
                                   radius: 25,
                                   backgroundColor:
@@ -117,7 +124,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           await Permission.contacts.request();
 
       if (permissionStatus == PermissionStatus.granted) {
-        final contacts =
+        List<Contact> contacts =
             await FlutterContacts.getContacts(withProperties: true);
         setState(() {
           _contacts.clear();
@@ -198,23 +205,24 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   // Method to handle the search functionality
   void _searchContacts(String query) {
+    log("called");
     setState(() {
       _searchQuery = query;
+      log(_searchQuery);
       _filteredContacts.clear();
       if (query.isEmpty) {
         // If search is empty, show all contacts
         _filteredContacts.addAll(_contacts);
       } else {
         // Filter contacts based on name or phone number
+
         _filteredContacts.addAll(_contacts.where((contact) {
           final name = contact.displayName.toLowerCase();
-          final phone = contact.phones.isNotEmpty
-              ? contact.phones[0].number.replaceAll(RegExp(r'\D'), '')
-              : ''; // Remove non-digit characters for phone comparison
-          return name.contains(query.toLowerCase()) ||
-              phone.contains(query.replaceAll(RegExp(r'\D'), ''));
+          return name.contains(query.toLowerCase());
         }));
+        // _filteredContacts.add(_contacts[0]);
       }
     });
+    log("filttered: ${_filteredContacts.toList()}");
   }
 }

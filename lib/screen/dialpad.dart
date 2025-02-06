@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dialing_screen.dart'; // Import the DialingScreen
+import 'package:flutter/services.dart';
 
 class DialPadScreen extends StatefulWidget {
   @override
@@ -8,6 +8,7 @@ class DialPadScreen extends StatefulWidget {
 
 class _DialPadScreenState extends State<DialPadScreen> {
   String phoneNumber = "";
+  static const platform = MethodChannel("com.example.dialer/call");
 
   void _onNumberPressed(String number) {
     setState(() {
@@ -23,18 +24,24 @@ class _DialPadScreenState extends State<DialPadScreen> {
     });
   }
 
-  void _onCallPressed() {
+  Future<void> _onCallPressed() async {
     if (phoneNumber.isNotEmpty) {
-      // Navigate to DialingScreen and pass the phone number
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              DialingScreen(dialedNumber: phoneNumber), // Pass phone number
-        ),
-      );
+      try {
+        final bool result = await platform.invokeMethod('makeCall', {
+          "phoneNumber": phoneNumber,
+        });
+
+        if (!result) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Could not make the call")),
+          );
+        }
+      } on PlatformException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to make call: ${e.message}")),
+        );
+      }
     } else {
-      // Show an error message if no number is entered
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter a number")),
       );
@@ -49,98 +56,60 @@ class _DialPadScreenState extends State<DialPadScreen> {
         backgroundColor: const Color.fromARGB(255, 194, 140, 245),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Display the entered phone number
-            Padding(
-              padding: const EdgeInsets.only(bottom: 32.0),
-              child: Text(
-                phoneNumber,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                ),
-              ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(phoneNumber,
+              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+          SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1.5,
             ),
-            // Dial pad buttons
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.zero,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 12, // Reduced spacing between buttons
-                  mainAxisSpacing: 12, // Reduced spacing between buttons
-                  childAspectRatio:
-                      1.2, // Reduced aspect ratio for smaller buttons
-                ),
-                itemCount: 12,
-                itemBuilder: (context, index) {
-                  List<String> buttons = [
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                    '5',
-                    '6',
-                    '7',
-                    '8',
-                    '9',
-                    '*',
-                    '0',
-                    '#'
-                  ];
-                  return ElevatedButton(
-                    onPressed: () => _onNumberPressed(buttons[index]),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      elevation: 8,
-                    ),
-                    child: Text(
-                      buttons[index],
-                      style: TextStyle(
-                        fontSize: 28, // Reduced font size
-                        fontWeight: FontWeight.bold,
-                        color: const Color.fromARGB(255, 117, 51, 198),
-                      ),
-                    ),
-                  );
-                },
+            itemCount: 12,
+            itemBuilder: (context, index) {
+              List<String> buttons = [
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                '*',
+                '0',
+                '#'
+              ];
+              return ElevatedButton(
+                onPressed: () => _onNumberPressed(buttons[index]),
+                child: Text(buttons[index],
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              );
+            },
+          ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                  icon: Icon(Icons.backspace, size: 36, color: Colors.red),
+                  onPressed: _onBackspacePressed),
+              SizedBox(width: 40),
+              FloatingActionButton(
+                onPressed: _onCallPressed,
+                backgroundColor: Colors.green,
+                child: Icon(Icons.call, size: 36),
               ),
-            ),
-            // Backspace and Call Button
-            Padding(
-              padding: const EdgeInsets.only(bottom: 32.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Backspace button
-                  IconButton(
-                    icon: Icon(Icons.backspace,
-                        size: 36,
-                        color: const Color.fromARGB(255, 217, 35, 41)),
-                    onPressed: _onBackspacePressed,
-                    padding: EdgeInsets.all(0),
-                    constraints: BoxConstraints(),
-                  ),
-                  SizedBox(width: 40),
-                  // Call button
-                  FloatingActionButton(
-                    onPressed: _onCallPressed, // Call this method on press
-                    backgroundColor: const Color.fromARGB(255, 76, 175, 80),
-                    child: Icon(Icons.call, size: 36),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
