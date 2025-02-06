@@ -44,69 +44,103 @@ class _DialPadScreenState extends State<DialPadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Dial Pad")),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              phoneNumber,
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.all(20),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1.2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+      appBar: AppBar(
+        title: Text("Dial Pad", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: const Color.fromARGB(255, 194, 140, 245),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Display the entered phone number
+            Padding(
+              padding: const EdgeInsets.only(bottom: 32.0),
+              child: Text(
+                phoneNumber,
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                ),
               ),
-              itemCount: 12,
-              itemBuilder: (context, index) {
-                List<String> buttons = [
-                  '1',
-                  '2',
-                  '3',
-                  '4',
-                  '5',
-                  '6',
-                  '7',
-                  '8',
-                  '9',
-                  '*',
-                  '0',
-                  '#'
-                ];
-                return ElevatedButton(
-                  onPressed: () => _onNumberPressed(buttons[index]),
-                  child: Text(
-                    buttons[index],
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            // Dial pad buttons
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.zero,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 12, // Reduced spacing between buttons
+                  mainAxisSpacing: 12, // Reduced spacing between buttons
+                  childAspectRatio:
+                      1.2, // Reduced aspect ratio for smaller buttons
+                ),
+                itemCount: 12,
+                itemBuilder: (context, index) {
+                  List<String> buttons = [
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
+                    '9',
+                    '*',
+                    '0',
+                    '#'
+                  ];
+                  return ElevatedButton(
+                    onPressed: () => _onNumberPressed(buttons[index]),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      elevation: 8,
+                    ),
+                    child: Text(
+                      buttons[index],
+                      style: TextStyle(
+                        fontSize: 28, // Reduced font size
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(255, 117, 51, 198),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Backspace and Call Button
+            Padding(
+              padding: const EdgeInsets.only(bottom: 32.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Backspace button
+                  IconButton(
+                    icon: Icon(Icons.backspace,
+                        size: 36,
+                        color: const Color.fromARGB(255, 217, 35, 41)),
+                    onPressed: _onBackspacePressed,
+                    padding: EdgeInsets.all(0),
+                    constraints: BoxConstraints(),
                   ),
-                );
-              },
+                  SizedBox(width: 40),
+                  // Call button
+                  FloatingActionButton(
+                    onPressed: _onCallPressed, // Call this method on press
+                    backgroundColor: const Color.fromARGB(255, 76, 175, 80),
+                    child: Icon(Icons.call, size: 36),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Icon(Icons.backspace, size: 30),
-                onPressed: _onBackspacePressed,
-              ),
-              SizedBox(width: 50),
-              FloatingActionButton(
-                onPressed: _onCallPressed, // Call this method on press
-                backgroundColor: Colors.green,
-                child: Icon(Icons.call, size: 30),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-        ],
+          ],
+        ),
       ),
     );
   }

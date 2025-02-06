@@ -12,7 +12,9 @@ class ContactsScreen extends StatefulWidget {
 
 class _ContactsScreenState extends State<ContactsScreen> {
   final List<Contact> _contacts = [];
+  final List<Contact> _filteredContacts = [];
   bool _isLoading = false;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -24,47 +26,79 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contacts'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add),
-            onPressed: () {
-              _navigateToCreateContact();
-            },
-          ),
-        ],
+        title: const Text('Contacts'), // Change title to Contacts
       ),
       body: SafeArea(
         child: Column(
           children: [
+            // Search bar moved here
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+              child: TextField(
+                autofocus: true,
+                onChanged: _searchContacts,
+                decoration: InputDecoration(
+                  hintText: 'Search contacts...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                  ),
+                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                ),
+              ),
+            ),
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Expanded(
-                    child: _contacts.isEmpty
+                    child: _filteredContacts.isEmpty
                         ? const Center(
-                            child: Text('No contacts'),
+                            child: Text('No contacts',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
                           )
                         : ListView.builder(
-                            itemCount: _contacts.length,
+                            itemCount: _filteredContacts.length,
                             itemBuilder: (context, index) {
-                              Contact contact = _contacts[index];
+                              Contact contact = _filteredContacts[index];
                               final List<Phone> phones = contact.phones;
                               return ListTile(
-                                leading: const CircleAvatar(
-                                  child: Icon(Icons.person),
+                                leading: CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 209, 93, 248),
+                                  child: Icon(Icons.person,
+                                      size: 30, color: Colors.white),
                                 ),
-                                title: Text(contact.displayName),
+                                title: Text(
+                                  contact.displayName,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
                                 subtitle: Text(
                                   phones.isEmpty
                                       ? "No phone number"
                                       : '${phones[0].label} ${phones[0].number}',
+                                  style: TextStyle(fontSize: 14),
                                 ),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 16),
                               );
                             },
                           ),
                   ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _navigateToCreateContact();
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.person_add),
       ),
     );
   }
@@ -88,6 +122,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
         setState(() {
           _contacts.clear();
           _contacts.addAll(contacts); // Add the fetched contacts to the list
+          _filteredContacts.clear();
+          _filteredContacts.addAll(_contacts); // Initially, show all contacts
         });
       } else {
         _showPermissionDeniedDialog();
@@ -112,6 +148,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
     if (newContact != null) {
       setState(() {
         _contacts.add(newContact); // Add the new contact to the list
+        _filteredContacts
+            .add(newContact); // Add the new contact to the filtered list
       });
     }
   }
@@ -156,5 +194,27 @@ class _ContactsScreenState extends State<ContactsScreen> {
         ],
       ),
     );
+  }
+
+  // Method to handle the search functionality
+  void _searchContacts(String query) {
+    setState(() {
+      _searchQuery = query;
+      _filteredContacts.clear();
+      if (query.isEmpty) {
+        // If search is empty, show all contacts
+        _filteredContacts.addAll(_contacts);
+      } else {
+        // Filter contacts based on name or phone number
+        _filteredContacts.addAll(_contacts.where((contact) {
+          final name = contact.displayName.toLowerCase();
+          final phone = contact.phones.isNotEmpty
+              ? contact.phones[0].number.replaceAll(RegExp(r'\D'), '')
+              : ''; // Remove non-digit characters for phone comparison
+          return name.contains(query.toLowerCase()) ||
+              phone.contains(query.replaceAll(RegExp(r'\D'), ''));
+        }));
+      }
+    });
   }
 }
