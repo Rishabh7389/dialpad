@@ -159,7 +159,7 @@ class _DialPadScreenState extends State<DialPadScreen> {
                         shape: CircleBorder(),
                         backgroundColor:
                             const Color.fromARGB(255, 109, 202, 113),
-                        child: Icon(Icons.call, size: 48), // Bigger call icon
+                        child: Icon(Icons.call, size: 46), // Bigger call icon
                       ),
                     ),
                   ),
