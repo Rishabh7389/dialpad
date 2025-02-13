@@ -1,6 +1,6 @@
 import 'package:dialpad/screen/call_history_screen.dart';
 import 'package:dialpad/screen/contacts_screen.dart';
-import 'package:dialpad/screen/dialpad.dart';
+import 'package:dialpad/screen/dialpad_screen.dart';
 import 'package:flutter/material.dart';
 
 class BottomNav extends StatefulWidget {

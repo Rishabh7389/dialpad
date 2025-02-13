@@ -67,7 +67,7 @@ class _DialPadScreenState extends State<DialPadScreen> {
             appBar: AppBar(
               title: Text("Dial Pad",
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              backgroundColor: const Color.fromARGB(255, 152, 231, 245),
+              backgroundColor: const Color.fromARGB(255, 132, 231, 249),
               centerTitle: true,
             ),
             body: SingleChildScrollView(
@@ -78,9 +78,9 @@ class _DialPadScreenState extends State<DialPadScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: IntlPhoneField(
-                      style: TextStyle(height: 2.3),
+                      style: TextStyle(height: 2.5),
                       controller: _phoneController,
-                      initialCountryCode: 'US',
+                      initialCountryCode: 'IN',
                       decoration: InputDecoration(
                         labelText: 'Phone Number',
                         border: OutlineInputBorder(
